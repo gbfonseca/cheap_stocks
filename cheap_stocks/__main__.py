@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+import numpy as np
 import locale
 from locale import atof
 
@@ -69,7 +70,8 @@ def get_stocks():
     stocks = stocks.applymap(lambda value: atof(
         str(value)) if str(value).isdigit() else value)
     stocks.drop(stocks[stocks['Margem EBIT'] < 0].index, inplace=True)
-    print(stocks)
+    stocks['Margem EBIT'].replace('', np.nan, inplace=True)
+    stocks.dropna(subset=['Margem EBIT'], inplace=True)
     driver.close()
     return stocks.to_csv('cheap_stocks.csv')
 
