@@ -7,6 +7,7 @@ authors = ["Gabriel Silva <gabriel.silva@calindra.com.br>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 selenium = "^4.0.0"
+beautifulsoup4 = "^4.10.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
