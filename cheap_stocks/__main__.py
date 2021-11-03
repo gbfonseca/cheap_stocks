@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
@@ -7,7 +8,7 @@ from selenium.webdriver.support.ui import Select
 url = 'https://www.investsite.com.br/seleciona_acoes.php'
 
 option = Options()
-option.headless = False
+option.headless = True
 driver = webdriver.Firefox(options=option)
 
 
@@ -29,6 +30,9 @@ def get_actions():
         By.XPATH, "//*[@id='tabela_selecao_acoes_wrapper']/div[2]/div[1]/div/table")
 
     html_content = element.get_attribute('outerHTML')
+
+    soup = BeautifulSoup(html_content, 'html.parser')
+    table = soup.find(name="table")
 
     driver.close()
 
