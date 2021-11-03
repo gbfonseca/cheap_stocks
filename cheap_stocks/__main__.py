@@ -4,12 +4,13 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
-
+import locale
+from locale import atof
 
 URL = 'https://www.investsite.com.br/seleciona_acoes.php'
 
 option = Options()
-option.headless = False
+option.headless = True
 driver = webdriver.Firefox(options=option)
 
 
@@ -53,13 +54,22 @@ def get_stocks():
     table_header = header_parsed.find(name="table")
     table_data = data_parsed.find(name="table")
 
-    header_data_frame = pd.read_html(str(table_header), index_col=0)[0]
-    actions_data_frame = pd.read_html(str(table_data), index_col=0)[0]
+    header_data_frame = pd.read_html(str(table_header))[0]
+    actions_data_frame = pd.read_html(str(table_data))[0]
 
     columns = header_data_frame.columns
-
     stocks = actions_data_frame.set_axis(columns, axis=1)
 
+    locale.setlocale(locale.LC_NUMERIC, '')
+
+    stocks['Margem EBIT'] = stocks['Margem EBIT'].str.rstrip('%')
+    stocks['Margem EBIT'] = stocks['Margem EBIT'].str.replace(',', '.')
+    stocks['Margem EBIT'] = pd.to_numeric(
+        stocks['Margem EBIT'], errors='coerce')
+    stocks = stocks.applymap(lambda value: atof(
+        str(value)) if str(value).isdigit() else value)
+    stocks.drop(stocks[stocks['Margem EBIT'] < 0].index, inplace=True)
+    print(stocks)
     driver.close()
     return stocks.to_csv('cheap_stocks.csv')
 
