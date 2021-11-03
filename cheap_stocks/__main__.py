@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import Select
 URL = 'https://www.investsite.com.br/seleciona_acoes.php'
 
 option = Options()
-option.headless = True
+option.headless = False
 driver = webdriver.Firefox(options=option)
 
 
@@ -20,6 +20,15 @@ def get_stocks():
     select = Select(driver.find_element(
         By.XPATH, "//select[@id='num_result']"))
     select.select_by_visible_text('Todos')
+
+    driver.find_element(By.XPATH, "//*[@id='selectAll']").click()
+    driver.find_element(By.XPATH, "//*[@id='selectAll']").click()
+    driver.find_element(By.XPATH, "//*[@id='coluna10']").click()
+    driver.find_element(By.XPATH, "//*[@id='coluna23']").click()
+    driver.find_element(By.XPATH, "//*[@id='coluna26']").click()
+    driver.find_element(By.XPATH, "//*[@id='coluna27']").click()
+    driver.find_element(
+        By.XPATH, "//*[@id='tabela_seleciona_acoes']/tbody/tr[24]/td[2]/input").send_keys(200000)
 
     driver.find_element(
         By.XPATH, "//*[@id='form_seleciona_acoes']/input[1]").click()
