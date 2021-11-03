@@ -72,6 +72,7 @@ def get_stocks():
     stocks.drop(stocks[stocks['Margem EBIT'] < 0].index, inplace=True)
     stocks['Margem EBIT'].replace('', np.nan, inplace=True)
     stocks.dropna(subset=['Margem EBIT'], inplace=True)
+    stocks = stocks.sort_values(by=['EV/EBIT'])
     driver.close()
     return stocks.to_csv('cheap_stocks.csv')
 
