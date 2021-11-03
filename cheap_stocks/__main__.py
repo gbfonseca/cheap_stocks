@@ -13,7 +13,9 @@ option.headless = True
 driver = webdriver.Firefox(options=option)
 
 
-def get_actions():
+def get_stocks():
+    """ Method to get stocks"""
+
     driver.get(URL)
     select = Select(driver.find_element(
         By.XPATH, "//select[@id='num_result']"))
@@ -53,4 +55,4 @@ def get_actions():
     return stocks.to_csv('cheap_stocks.csv')
 
 
-get_actions()
+get_stocks()
