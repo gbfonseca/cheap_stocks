@@ -1,3 +1,4 @@
+import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
@@ -5,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
 
-url = 'https://www.investsite.com.br/seleciona_acoes.php'
+URL = 'https://www.investsite.com.br/seleciona_acoes.php'
 
 option = Options()
 option.headless = True
@@ -13,7 +14,7 @@ driver = webdriver.Firefox(options=option)
 
 
 def get_actions():
-    driver.get(url)
+    driver.get(URL)
     select = Select(driver.find_element(
         By.XPATH, "//select[@id='num_result']"))
     select.select_by_visible_text('Todos')
@@ -26,15 +27,30 @@ def get_actions():
 
     filter_select.select_by_visible_text('Todos')
 
-    element = driver.find_element(
+    header = driver.find_element(
         By.XPATH, "//*[@id='tabela_selecao_acoes_wrapper']/div[2]/div[1]/div/table")
 
-    html_content = element.get_attribute('outerHTML')
+    data = driver.find_element(
+        By.XPATH, "//*[@id='tabela_selecao_acoes_wrapper']/div[2]/div[2]")
 
-    soup = BeautifulSoup(html_content, 'html.parser')
-    table = soup.find(name="table")
+    header_content = header.get_attribute('outerHTML')
+    data_content = data.get_attribute('outerHTML')
+
+    header_parsed = BeautifulSoup(header_content, 'html.parser')
+    data_parsed = BeautifulSoup(data_content, 'html.parser')
+
+    table_header = header_parsed.find(name="table")
+    table_data = data_parsed.find(name="table")
+
+    header_data_frame = pd.read_html(str(table_header), index_col=0)[0]
+    actions_data_frame = pd.read_html(str(table_data), index_col=0)[0]
+
+    columns = header_data_frame.columns
+
+    stocks = actions_data_frame.set_axis(columns, axis=1)
 
     driver.close()
+    return stocks.to_csv('cheap_stocks.csv')
 
 
 get_actions()
