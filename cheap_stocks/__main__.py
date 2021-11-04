@@ -14,6 +14,8 @@ option = Options()
 option.headless = True
 driver = webdriver.Firefox(options=option)
 
+black_list = ['SUL AMERICA', 'PORTO SEGURO']
+
 
 def get_stocks():
     """ Method to get stocks"""
@@ -72,6 +74,8 @@ def get_stocks():
     stocks.drop(stocks[stocks['Margem EBIT'] < 0].index, inplace=True)
     stocks['Margem EBIT'].replace('', np.nan, inplace=True)
     stocks.dropna(subset=['Margem EBIT'], inplace=True)
+    for stock in black_list:
+        stocks.drop(stocks[stocks['Empresa'] == stock].index, inplace=True)
     stocks = stocks.sort_values(by=['EV/EBIT'])
     driver.close()
     return stocks.to_csv('cheap_stocks.csv')
