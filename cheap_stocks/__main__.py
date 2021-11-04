@@ -74,6 +74,7 @@ def get_stocks():
     stocks.drop(stocks[stocks['Margem EBIT'] < 0].index, inplace=True)
     stocks['Margem EBIT'].replace('', np.nan, inplace=True)
     stocks.dropna(subset=['Margem EBIT'], inplace=True)
+    stocks.drop(stocks[stocks['Ação'].str.contains('33')].index, inplace=True)
     for stock in black_list:
         stocks.drop(stocks[stocks['Empresa'] == stock].index, inplace=True)
     stocks = stocks.sort_values(by=['EV/EBIT'])
