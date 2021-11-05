@@ -77,6 +77,7 @@ def get_stocks():
     stocks.drop(stocks[stocks['Ação'].str.contains('33')].index, inplace=True)
     for stock in black_list:
         stocks.drop(stocks[stocks['Empresa'] == stock].index, inplace=True)
+    stocks['Preço'] = stocks['Preço'] / 100
     stocks = stocks.sort_values(by=['EV/EBIT'])
     driver.close()
     return stocks.to_csv('cheap_stocks.csv')
