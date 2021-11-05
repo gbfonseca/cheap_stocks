@@ -14,7 +14,8 @@ option = Options()
 option.headless = True
 driver = webdriver.Firefox(options=option)
 
-black_list = ['SUL AMERICA', 'PORTO SEGURO', 'ETERNIT', 'FER HERINGER']
+black_list = ['SUL AMERICA', 'PORTO SEGURO', 'ETERNIT', 'FER HERINGER',
+              'AZEVEDO', 'CEB', 'CSNMINERACAO', 'RANDON PART', 'CYRELA REALT', 'GRAZZIOTIN', 'EUCATEX']
 
 
 def get_stocks():
