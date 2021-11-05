@@ -1,3 +1,5 @@
+import locale
+from locale import atof
 import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -5,9 +7,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 import numpy as np
-import locale
-from locale import atof
-
+import re
 URL = 'https://www.investsite.com.br/seleciona_acoes.php'
 
 option = Options()
@@ -78,6 +78,9 @@ def get_stocks():
     for stock in black_list:
         stocks.drop(stocks[stocks['Empresa'] == stock].index, inplace=True)
     stocks['Preço'] = stocks['Preço'] / 100
+    stocks = stocks.sort_values(
+        'Volume Financ.(R$)', key=lambda x: x.str.len()).drop_duplicates('Empresa', keep='last')
+
     stocks = stocks.sort_values(by=['EV/EBIT'])
     driver.close()
     return stocks.to_csv('cheap_stocks.csv')
