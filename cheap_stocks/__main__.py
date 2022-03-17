@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 import numpy as np
 import re
+from datetime import date
 URL = 'https://www.investsite.com.br/seleciona_acoes.php'
 
 option = Options()
@@ -84,7 +85,10 @@ def get_stocks():
 
     stocks = stocks.sort_values(by=['EV/EBIT'])
     driver.close()
-    return stocks.to_csv('cheap_stocks.csv')
+
+    today = date.today()
+    formated_day = today.strftime("%d-%m-%y")
+    return stocks.to_csv('cheap_stocks_{}.csv'.format(today))
 
 
 get_stocks()
