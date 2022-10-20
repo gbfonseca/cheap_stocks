@@ -28,7 +28,11 @@ def get_stocks():
     select.select_by_visible_text('Todos')
 
     driver.find_element(By.XPATH, "//*[@id='selectAll']").click()
-    driver.find_element(By.XPATH, "//*[@id='selectAll']").click()
+    
+    for i in range(4,27):
+        driver.find_element(By.XPATH, f"//*[@id='coluna{i}']").click()
+
+
     driver.find_element(By.XPATH, "//*[@id='coluna10']").click()
     driver.find_element(By.XPATH, "//*[@id='coluna23']").click()
     driver.find_element(By.XPATH, "//*[@id='coluna26']").click()
@@ -83,12 +87,15 @@ def get_stocks():
     stocks = stocks.sort_values(
         'Volume Financ.(R$)', key=lambda x: x.str.len()).drop_duplicates('Empresa', keep='last')
 
+    stocks['EV/EBIT'] = pd.to_numeric(
+        stocks['EV/EBIT'], errors='coerce')
+    stocks.dropna(subset=['EV/EBIT'], inplace=True)
     stocks = stocks.sort_values(by=['EV/EBIT'])
     driver.close()
 
     today = date.today()
     formated_day = today.strftime("%d-%m-%y")
-    return stocks.to_csv('cheap_stocks_{}.csv'.format(today))
+    return stocks.to_excel('cheap_stocks_{}.xlsx'.format(today))
 
 
 get_stocks()
