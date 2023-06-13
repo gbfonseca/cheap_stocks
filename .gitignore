@@ -3,3 +3,4 @@
 **/geckodriver.log
 .dccache
 *.xlsx
+venv
