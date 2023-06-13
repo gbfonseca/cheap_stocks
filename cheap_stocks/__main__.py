@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import Select
 import numpy as np
 import re
 from datetime import date
+import time
 URL = 'https://www.investsite.com.br/seleciona_acoes.php'
 
 option = Options()
@@ -21,38 +22,46 @@ black_list = ['SUL AMERICA', 'PORTO SEGURO', 'ETERNIT', 'FER HERINGER',
 
 def get_stocks():
     """ Method to get stocks"""
-
+    print("Abrindo site...")
     driver.get(URL)
     select = Select(driver.find_element(
-        By.XPATH, "//select[@id='num_result']"))
-    select.select_by_visible_text('Todos')
+        By.XPATH, "//select[@id='select_data']"))
+    select.select_by_index(0)
+
+    print("Selecionando filtros...")
 
     driver.find_element(By.XPATH, "//*[@id='selectAll']").click()
     
-    for i in range(4,27):
-        driver.find_element(By.XPATH, f"//*[@id='coluna{i}']").click()
+    for i in range(7,34):
+        driver.find_element(By.XPATH, f"//*[@id='itm{i}']").click()
 
 
-    driver.find_element(By.XPATH, "//*[@id='coluna10']").click()
-    driver.find_element(By.XPATH, "//*[@id='coluna23']").click()
-    driver.find_element(By.XPATH, "//*[@id='coluna26']").click()
-    driver.find_element(By.XPATH, "//*[@id='coluna27']").click()
+    driver.find_element(By.XPATH, "//*[@id='itm13']").click()
+    driver.find_element(By.XPATH, "//*[@id='itm26']").click()
+    driver.find_element(By.XPATH, "//*[@id='itm29']").click()
+    driver.find_element(By.XPATH, "//*[@id='itm30']").click()
     driver.find_element(
-        By.XPATH, "//*[@id='tabela_seleciona_acoes']/tbody/tr[24]/td[2]/input").send_keys(200000)
+        By.XPATH, '//*[@id="tabela_seleciona_acoes"]/tbody/tr[28]/td[2]/input').send_keys(200000)
 
     driver.find_element(
-        By.XPATH, "//*[@id='form_seleciona_acoes']/input[1]").click()
+        By.XPATH, "/html/body/div[1]/div[3]/div/form/input[1]").click()
+    
+    print("Buscando açoes...")
+
+    time.sleep(5)
+
+    print("Manipulando dados...")
 
     filter_select = Select(driver.find_element(
-        By.XPATH, "//*[@id='tabela_selecao_acoes_length']/select"))
+        By.XPATH, "/html/body/div[1]/div[3]/div[2]/div[1]/label/select"))
 
     filter_select.select_by_visible_text('Todos')
 
     header = driver.find_element(
-        By.XPATH, "//*[@id='tabela_selecao_acoes_wrapper']/div[2]/div[1]/div/table")
+        By.XPATH, "/html/body/div[1]/div[3]/div[2]/div[3]/div[1]/div/table")
 
     data = driver.find_element(
-        By.XPATH, "//*[@id='tabela_selecao_acoes_wrapper']/div[2]/div[2]")
+        By.XPATH, '//*[@id="tabela_selecao_acoes"]')
 
     header_content = header.get_attribute('outerHTML')
     data_content = data.get_attribute('outerHTML')
@@ -71,6 +80,8 @@ def get_stocks():
 
     locale.setlocale(locale.LC_NUMERIC, '')
 
+    print("Organizando e manipulando dados...")
+
     stocks['Margem EBIT'] = stocks['Margem EBIT'].str.rstrip('%')
     stocks['Margem EBIT'] = stocks['Margem EBIT'].str.replace(',', '.')
     stocks['Margem EBIT'] = pd.to_numeric(
@@ -84,15 +95,16 @@ def get_stocks():
     for stock in black_list:
         stocks.drop(stocks[stocks['Empresa'] == stock].index, inplace=True)
     stocks['Preço'] = stocks['Preço'] / 100
-    stocks = stocks.sort_values(
-        'Volume Financ.(R$)', key=lambda x: x.str.len()).drop_duplicates('Empresa', keep='last')
-
+    stocks = stocks.sort_values(by='Volume Financ.(R$)')
+    stocks = stocks.drop_duplicates('Empresa', keep='last')
     stocks['EV/EBIT'] = pd.to_numeric(
         stocks['EV/EBIT'], errors='coerce')
     stocks.dropna(subset=['EV/EBIT'], inplace=True)
     stocks = stocks.sort_values(by=['EV/EBIT'])
     driver.close()
 
+    stocks = stocks.iloc[:20]
+    print("Gerando arquivo excel...")
     today = date.today()
     formated_day = today.strftime("%d-%m-%y")
     return stocks.to_excel('cheap_stocks_{}.xlsx'.format(today))
